@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" type="text/css" href="styles.css">
+  <title>WebGPU Compute Shader Example</title>
+</head>
+
+
+<body>
+  <script type="module" src="main.js"></script>
+  <script type="module" src="webgpu.js"></script>
+  <canvas id="mainCanvas" width="500" height="400" style="border:1px solid #000000;"></canvas>
+
+  <form>
+    <label for="val">Displacement:</label><br>
+    <input type="text" id="inp_valfunc" name="val"><br>
+    <label for="vel">Velocity:</label><br>
+    <input type="text" id="inp_velfunc" name="vel"><br>
+
+    <div>
+      <ul class="unordered">
+      </ul>
+    </div>
+
+    <input type="submit" value="set">
+  </form>
+</body>
+
+
+</html>
