@@ -1,6 +1,8 @@
 # Wavy1D
 
-This is intended as a solver for the 1D wave equation given Dirichlet and initial conditions. Uses FEM with Euler integration, implemented with WebGPU compute shaders in WGSL, running on a simple JS animation loop. Program writes/reads values to/from GPU buffers on each frame and draws appropriately on a 2D canvas. Initial values and velocities are currently hardcoded.
+See the program hosted on github pages at: https://hadronical.github.io/wavy1d/
+
+The main project was intended as a solver for the 1D wave equation given initial positions and velocities. It uses FEM with Euler integration, implemented with WebGPU compute shaders in WGSL, running on a simple JS animation loop. Program writes/reads values to/from GPU buffers on each frame and draws appropriately on a 2D canvas.
 
 Program uses a ping-pong algorithm to iterate through multiple time steps per frame entirely on the GPU side to allow smaller time steps and higher accuracy.
 
@@ -8,11 +10,20 @@ Program uses a ping-pong algorithm to iterate through multiple time steps per fr
 
 Central line represents the values at each point as a height, same with colors on the circle behind: red for positive; blue for negative.
 
+## Usage
+
+Use the configurator below the canvas to set initial conditions, and see what happens in the simulation!
+
+You can specify initial positions F0: [-1,1] -> R by writing individual functions f_i: [min, max] -> R defined through JavaScript, yes it uses eval :(...
+
+Or you can also specify initial velocity V0: [-1,1] -> R the same way.
+
+The program currently imposes Dirichlet conditions of 0 on the boundaries.
+
 ## WIP
 
-- Working on dynamically setting (initial) values and velocities through GUI.
 - Visualizations for velocity and "energy".
-- Updating all compute shaders so other Dirichlet conditions work with new ping-pong algorithm.
+- Updating all compute shaders so other Dirichlet and Neumann conditions work with ping-pong algorithm.
 
 ## Potential features
 
