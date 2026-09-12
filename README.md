@@ -20,25 +20,32 @@ You can specify initial displacement $`F_0: [-1,1] \to \mathbb R`$ by writing in
 
 e.g. if the desired $`F_0(x) = e^{-x^2}`$ the equivalent JS anonymous, or arrow, function would be:
 ```
-x => Math.exp(-((10*x)**2))
+x => Math.exp(-(x**2))
 or
-x => { return Math.exp(-((10*x)**2)); }
+x => { return Math.exp(-(x**2)); }
 ```
 but you only need to input
 ```
-"Math.exp(-((10*x)**2))"
+"Math.exp(-(x**2))"
 or
-"{ return Math.exp(-((10*x)**2)); }"
+"{ return Math.exp(-(x**2)); }"
 ```
 
 You can also specify initial velocity $`V_0: [-1,1] \to \mathbb R`$ the same way by choosing the appropriate option.
 
-The program currently imposes Dirichlet conditions of 0 on the boundaries.
+The program currently imposes Dirichlet conditions of 0 on the boundaries. There are some pre-defined constants for your benefit:
+```
+const TWO_PI  = 2 * Math.PI;
+const PI      = Math.PI;
+const HALF_PI = Math.PI / 2;
+```
+
 
 ## WIP
 
+- Add GUI control over simulation parameters: time step, iterations/frame, spatial partitions, etc.
 - Visualizations for velocity and "energy".
-- Updating all compute shaders so other Dirichlet and Neumann conditions work with ping-pong algorithm.
+- Update all compute shaders so other Dirichlet and Neumann conditions work with ping-pong algorithm.
 
 ## Potential features
 
