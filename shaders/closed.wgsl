@@ -9,7 +9,7 @@ struct constants {
 @group(0) @binding(3) var<storage, read_write> buf_next_val : array<f32>;
 @group(0) @binding(4) var<storage, read_write> buf_next_vel : array<f32>;
 
-@compute @workgroup_size(100)
+@compute @workgroup_size(256)
 fn update (@builtin(global_invocation_id) id : vec3u)
 {
     let i = id.x;

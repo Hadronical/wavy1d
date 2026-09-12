@@ -1,0 +1,143 @@
+.initial-values-configuration-container {
+    max-width: 80%;
+    margin: 0 auto;
+}
+
+/* Row layout */
+
+.initial-value-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.list-row {
+    border: 1px solid var(--border-soft);
+    border-radius: 5px;
+    padding: 6px 8px;
+    background: #ffffff;
+}
+
+.row-fields {
+    margin: 0 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.inactive {
+    opacity: 0.5;
+    border: 1px dotted var(--border-soft);
+}
+
+.field-type {
+    flex: 3 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+}
+
+.field-function {
+    flex: 10 0;
+    min-width: 0;
+}
+
+.field-interval-min {
+    flex: 1 0 30px;
+    min-width: 0;
+}
+
+.field-interval-max {
+    flex: 1 0 30px;
+    min-width: 0;
+}
+
+select,
+input[type="text"],
+input[type="number"] {
+    width: 100%;
+    min-width: 0;
+    font-size: 14px;
+    font-family: inherit;
+    color: #000;
+    background: #fff;
+    border: 1px solid var(--border-input);
+    border-radius: 6px;
+    padding: 6px 6px;
+}
+
+select {
+    padding: 6px 2px;
+}
+
+select:focus,
+input[type="text"]:focus,
+input[type="number"]:focus {
+    outline: none;
+    border-color: #000;
+}
+
+.icon-btn {
+    flex: 0 0 30px;
+    width: fit-content;
+    height: 30px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+}
+.icon-btn:hover {
+    background: var(--hover-bg);
+}
+.icon-btn:active {
+    background: #e6e6e6;
+}
+
+.field-active {
+    padding: 5px 5px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.field-active checkbox {
+    padding: 5px 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.set-initial-values-btn {
+    margin: 5px 5px;
+    width: 100%;
+    border: 1px solid var(--border-solid);
+    padding: 5px 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.set-initial-values-btn:hover {
+    background: var(--hover-green);
+}
+
+.set-initial-values-btn:active {
+    background: var(--solid-green);
+}
+
+.empty-hint {
+    font-size: 13px;
+    color: #888;
+    text-align: center;
+    padding: 10px 4px 2px 4px;
+}

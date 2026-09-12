@@ -1,6 +1,3 @@
-import * as main from "./main.js";
-
-
 //===== accessing WebGPU =====//
 
 const ADAPTER = await navigator.gpu?.requestAdapter();
@@ -40,7 +37,10 @@ const PIPELINE = DEVICE.createComputePipeline({
 });
 
 // quick and dirty globals... I'm lazy
-let buf_constants;
+let deltaTime;
+let iterationsPerFrame;
+let springConstant;
+let spatialPartitions;
 
 let BUFFER_CONSTANTS,
     BUFFER_VAL_A, BUFFER_VEL_A;
@@ -48,15 +48,29 @@ let BUFFER_VAL_B, BUFFER_VEL_B;
 let BUFFER_VAL_OUT, BUFFER_VEL_OUT;
 let BIND_GROUP_AB, BIND_GROUP_BA;
 
+const WORKGROUP_SIZE = 256;
+
 
 /**
- * Declares all buffers with initial values and bindgroups
+ * Sets simulation parameters and declares all buffers with initial values and
+ * bindgroups
+ * 
+ * @param {Float} dt delta time on each time step
+ * @param {Int} iterations iterations to run per update
+ * @param {Float} k spring constant for simulation
+ * @param {Int} partitions number of spatial partitions
  */
-export function setup () {
-    buf_constants = new Float32Array([main.dt, main.k]);
-    const buf_temp = new Float32Array(new Array(main.N).fill(0.0));
+export function simulationSetup (dt, iterations, k, partitions) {
+    deltaTime = dt;
+    iterationsPerFrame = iterations;
+    springConstant = k;
+    spatialPartitions = partitions;
+
+    const buf_constants = new Float32Array([deltaTime, springConstant]);
+    const buf_temp = new Float32Array(new Array(spatialPartitions).fill(0.0));
 
     // create and write to input buffers
+    // constants buffer for [dt: f32, k: f32]
     BUFFER_CONSTANTS = DEVICE.createBuffer({
         label: "constants buffer",
         size: 8, // 2 x 4 (float32)
@@ -136,7 +150,7 @@ export function setup () {
  * @param {Float[]} vel 
  * @returns {{val: Float[], vel: Float[]}}
  */
-export async function update (val, vel) {
+export async function simulationUpdate (val, vel) {
     // initialize buffers for update
     let buf_val = new Float32Array(val);
     let buf_vel = new Float32Array(vel);
@@ -150,19 +164,19 @@ export async function update (val, vel) {
     PASS.setPipeline(PIPELINE);
 
     // ping pong A B buffers
-    for (let k = 0; k < main.iterations; k++) {
+    for (let k = 0; k < iterationsPerFrame; k++) {
         if (k % 2 == 0) {
             PASS.setBindGroup(0, BIND_GROUP_AB);
         }
         else {
             PASS.setBindGroup(0, BIND_GROUP_BA);
         }
-        PASS.dispatchWorkgroups(main.N);
+        PASS.dispatchWorkgroups(Math.ceil(spatialPartitions / WORKGROUP_SIZE));
     }
 
     PASS.end();
 
-    if (main.iterations % 2 == 0) {
+    if (iterationsPerFrame % 2 == 0) {
         COMMAND_ENCODER.copyBufferToBuffer(BUFFER_VAL_A,0, BUFFER_VAL_OUT,0, BUFFER_VAL_OUT.size);
         COMMAND_ENCODER.copyBufferToBuffer(BUFFER_VEL_A,0, BUFFER_VEL_OUT,0, BUFFER_VEL_OUT.size);
     }

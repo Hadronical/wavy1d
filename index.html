@@ -3,30 +3,69 @@
 
 
 <head>
-  <meta charset="utf-8" />
-  <link rel="stylesheet" type="text/css" href="styles.css">
-  <title>WebGPU Compute Shader Example</title>
+    <meta charset="utf-8" />
+
+    <link rel="stylesheet" type="text/css" href="styles/main.css">
+    <link rel="stylesheet" type="text/css" href="styles/initialValuesList.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0&icon_names=add,delete_forever" />
+    <title>Wavy 1D</title>
 </head>
 
 
 <body>
-  <script type="module" src="main.js"></script>
-  <script type="module" src="webgpu.js"></script>
-  <canvas id="mainCanvas" width="500" height="400" style="border:1px solid #000000;"></canvas>
+    <script type="module" src="src/main.js"></script>
+    <script type="module" src="src/webgpu.js"></script>
+    <script type="module" src="src/initialValuesList.js"></script>
 
-  <form>
-    <label for="val">Displacement:</label><br>
-    <input type="text" id="inp_valfunc" name="val"><br>
-    <label for="vel">Velocity:</label><br>
-    <input type="text" id="inp_velfunc" name="vel"><br>
+    <div class="banner">Wavy 1D</div>
 
-    <div>
-      <ul class="unordered">
-      </ul>
+    <div class="canvas-container">
+        <div class="panel">
+            <canvas id="mainCanvas"></canvas>
+        </div>
     </div>
 
-    <input type="submit" value="set">
-  </form>
+    <div class="initial-values-configuration-container">
+        <div class="panel">
+            <h1>Set Initial Values</h1>
+            <p>Predefined constants: TWO_PI, PI, HALF_PI</p>
+
+            <div class="panel">
+                <div class="panel-label">Create new initial value:</div>
+                <div class="initial-value-row">
+                    <div class="row-fields">
+                        <div class="field-type">
+                            <select id="new-type" aria-label="Type">
+                                <option value="displacement">displacement</option>
+                                <option value="velocity">velocity</option>
+                            </select>
+                        </div>
+                        <div class="field-function">
+                            <input type="text" id="new-function" placeholder="x => ... input as JavaScript" aria-label="function field">
+                        </div>
+                        <div class="field-interval-min">
+                            <input type="number" id="new-interval-min" value="-1.0" min="-1" max="1" aria-label="interval min field">
+                        </div>
+                        <div class="field-interval-max">
+                            <input type="number" id="new-interval-max" value="1.0" min="-1" max="1" aria-label="interval max field">
+                        </div>
+                    </div>
+                    <button class="icon-btn" id="add-btn" title="add initial value" aria-label="add initial value">
+                        <span class="material-symbols-outlined">add</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-label">Edit initial values:</div>
+                <div id="initial-values-list"></div>
+                <div class="empty-hint" id="empty-hint">No inital values — create one above</div>
+            </div>
+
+            <button class="set-initial-values-btn" id="set-btn">set initial values</button>
+        </div>
+    </div>
 </body>
 
 
