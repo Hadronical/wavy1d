@@ -8,15 +8,30 @@ Program uses a ping-pong algorithm to iterate through multiple time steps per fr
 
 ## Visuals
 
-Central line represents the values at each point as a height, same with colors on the circle behind: red for positive; blue for negative.
+Black line represents the displacement at each point as a height. Same with colors on the circle behind: red for positive; blue for negative. Boundaries are marked with a perpendicular line.
 
 ## Usage
 
 Use the configurator below the canvas to set initial conditions, and see what happens in the simulation!
 
-You can specify initial positions F0: [-1,1] -> R by writing individual functions f_i: [min, max] -> R defined through JavaScript, yes it uses eval :(...
+### Initial Values
 
-Or you can also specify initial velocity V0: [-1,1] -> R the same way.
+You can specify initial displacement $`F_0: [-1,1] \to \mathbb R`$ by writing individual functions $`f_i: [a, b] \to \mathbb R`$ defined as a JavaScript anonymous function body and specifying $a,b$ ... yes it uses eval :(
+
+e.g. if the desired $`F_0(x) = e^{-x^2}`$ the equivalent JS anonymous, or arrow, function would be:
+```
+x => Math.exp(-((10*x)**2))
+or
+x => { return Math.exp(-((10*x)**2)); }
+```
+but you only need to input
+```
+"Math.exp(-((10*x)**2))"
+or
+"{ return Math.exp(-((10*x)**2)); }"
+```
+
+You can also specify initial velocity $`V_0: [-1,1] \to \mathbb R`$ the same way by choosing the appropriate option.
 
 The program currently imposes Dirichlet conditions of 0 on the boundaries.
 
