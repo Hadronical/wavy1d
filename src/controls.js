@@ -3,7 +3,7 @@ import { setNewParameters, requestUpdate } from "./main.js";
 let isRunning = false;
 let dt = 0.005;
 let iterations = 4;
-var simRealDeltaTime = dt * iterations;
+var timestep = dt * iterations;
 
 const runToggleBtn = document.getElementById("sim-run-toggle-btn");
 const dtInp = document.getElementById("sim-dt-inp");
@@ -12,13 +12,13 @@ const stepBtn = document.getElementById("sim-step-btn");
 const timeStepTxt = document.getElementById("sim-timestep-txt");
 
 function updateTimeStep () {
-    simRealDeltaTime = dt * iterations;
-    timeStepTxt.textContent = simRealDeltaTime;
+    timestep = dt * iterations;
+    timeStepTxt.textContent = `Time-step/frame: ${timestep}`;
 }
 
 function setIsRunning (newIsRunning) {
     isRunning = newIsRunning;
-    runToggleBtn.textContent = (isRunning) ? ("Pause") : ("Play");
+    runToggleBtn.innerHTML = (isRunning) ? (`<span class="material-symbols-outlined">pause</span>`) : (`<span class="material-symbols-outlined">play_arrow</span>`);
     setNewParameters(isRunning, dt, iterations);
 }
 
@@ -53,4 +53,5 @@ iterationsInp.addEventListener("input", () => {
     }
 });
 
+setIsRunning(false);
 updateTimeStep();
