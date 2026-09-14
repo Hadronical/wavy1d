@@ -13,7 +13,7 @@ const W = 800, W_2 = W / 2;
 const H = 400, H_2 = H / 2;
 
 const DISPLACEMENT_DEFAULT_HEIGHT = H - 80;
-const VELOCITY_DEFAULT_HEIGHT = DISPLACEMENT_DEFAULT_HEIGHT;
+const ENERGY_DEFAULT_HEIGHT = H;
 
 const RING_CENTER_X = W_2;
 const RING_CENTER_Y = H_2 - 40;
@@ -98,6 +98,7 @@ function setInitialValues () {
     console.log("Initial values set!");
 }
 
+
 //===== draw frame =====
 
 async function draw () {    
@@ -120,7 +121,7 @@ async function draw () {
     ctx.fillRect(0,0, W,H);
 
     draw_displacement();
-    draw_velocity();
+    draw_energy();
     draw_ring();
 
     requestAnimationFrame(draw);
@@ -211,7 +212,7 @@ function initial_function (medium, domain_m,domain_M, func) {
 }
 
 /**
- * draw values as a displacement from default height
+ * draw values as displacement from default height
  */
 function draw_displacement () {
     ctx.strokeStyle = "black";
@@ -247,22 +248,22 @@ function draw_displacement () {
 }
 
 /**
- * draw velocities as a displacement from default height
+ * draw energy as displacement from default height
  */
-function draw_velocity () {
-    ctx.strokeStyle = "rgba(80,80, 80, 0.4)";
+function draw_energy () {
+    ctx.strokeStyle = "rgba(160,80,160, 0.4)";
 
     // draw displacement
     ctx.strokeWeight = 1;
 
     let x = 0;
-    let y = VELOCITY_DEFAULT_HEIGHT;
+    let y = ENERGY_DEFAULT_HEIGHT;
 
     ctx.beginPath();
     ctx.moveTo(x, y);
     for (let i = 1; i <= N; i++) {
         x += dx;
-        y = VELOCITY_DEFAULT_HEIGHT - vel[i] * 0.5;
+        y = ENERGY_DEFAULT_HEIGHT - (val[i] * val[i]) * 0.2;
         ctx.lineTo(x, y);
         ctx.moveTo(x, y);
     }

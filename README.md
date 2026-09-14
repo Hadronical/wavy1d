@@ -43,8 +43,6 @@ const HALF_PI = Math.PI / 2;
 
 ## WIP
 
-- Add GUI control over simulation parameters: time step, iterations/frame, spatial partitions, etc.
-- Visualizations for velocity and "energy".
 - Update all compute shaders so other Dirichlet and Neumann conditions work with ping-pong algorithm.
 
 ## Potential features
