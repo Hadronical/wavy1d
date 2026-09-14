@@ -10,7 +10,7 @@ struct constants {
 @group(0) @binding(4) var<storage, read_write> buf_next_vel: array<f32>;
 
 @compute @workgroup_size(256)
-fn update (@builtin(global_invocation_id) id: vec3u)
+fn update(@builtin(global_invocation_id) id: vec3u)
 {
     let i = id.x;
 
@@ -33,13 +33,4 @@ fn update (@builtin(global_invocation_id) id: vec3u)
         // update next val
         buf_next_val[i] = buf_curr_val[i] + buf_next_vel[i] * CONSTANTS.dt;
     }
-}
-
-fn accelerate_from_to (v1: f32, v2: f32) -> f32 {
-    // a = -k * x
-    return -CONSTANTS.k * (v1 - v2);
-}
-
-fn accelerate_by_velocity (v: f32) -> f32 {
-    return 0.0;
 }

@@ -13,14 +13,24 @@ const DEVICE = await ADAPTER?.requestDevice();
 // creating compute shader module
 const SHADER_FILES = {
     CLOSED: await fetch("shaders/closed.wgsl"),
-    //FIXME: OPEN  : await fetch("shaders/open.wgsl"), // OUTDATED UPDATE PROCESS
-    // FIXME: RING  : await fetch("shaders/ring.wgsl") // OUTDATED UPDATE PROCESS
+    RING:   await fetch("shaders/ring.wgsl")
 };
-const STR_COMPUTESHADER  = await SHADER_FILES.CLOSED.text();
+const STR_COMPUTESHADER_CODE = await SHADER_FILES.RING.text();
+
+const STR_SOLVER_CODE = /* wgsl */`
+fn accelerate_from_to(v1: f32, v2: f32) -> f32 {
+    // a = -k * x
+    return -CONSTANTS.k * (v1 - v2);
+}
+
+fn accelerate_by_velocity(v: f32) -> f32 {
+    return 0.0;
+}
+`;
 
 const SHADERMODULE_COMPUTE = DEVICE.createShaderModule({
     label: "updating compute shader",
-    code: STR_COMPUTESHADER,
+    code: STR_COMPUTESHADER_CODE + STR_SOLVER_CODE,
 });
 const info_compile = await SHADERMODULE_COMPUTE.getCompilationInfo();
 for (let message of info_compile.messages) {
