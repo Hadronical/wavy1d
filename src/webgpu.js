@@ -36,11 +36,8 @@ const PIPELINE = DEVICE.createComputePipeline({
     compute: { module: SHADERMODULE_COMPUTE },
 });
 
-// quick and dirty globals... I'm lazy
-let deltaTime;
-let iterationsPerFrame;
-let springConstant;
-let spatialPartitions;
+// quick and dirty global... I'm lazy
+let spatialPartitions, numWorkgroups;
 
 let BUFFER_CONSTANTS,
     BUFFER_VAL_A, BUFFER_VEL_A;
@@ -48,25 +45,18 @@ let BUFFER_VAL_B, BUFFER_VEL_B;
 let BUFFER_VAL_OUT, BUFFER_VEL_OUT;
 let BIND_GROUP_AB, BIND_GROUP_BA;
 
-const WORKGROUP_SIZE = 256;
+export const WORKGROUP_SIZE = 256;
 
 
 /**
- * Sets simulation parameters and declares all buffers with initial values and
- * bindgroups
+ * Setup webgpu with buffers and bindgroups
  * 
- * @param {Float} dt delta time on each time step
- * @param {Int} iterations iterations to run per update
- * @param {Float} k spring constant for simulation
  * @param {Int} partitions number of spatial partitions
  */
-export function simulationSetup (dt, iterations, k, partitions) {
-    deltaTime = dt;
-    iterationsPerFrame = iterations;
-    springConstant = k;
+export function simulationSetup (partitions) {
     spatialPartitions = partitions;
+    numWorkgroups = Math.ceil(spatialPartitions / WORKGROUP_SIZE);
 
-    const buf_constants = new Float32Array([deltaTime, springConstant]);
     const buf_temp = new Float32Array(new Array(spatialPartitions).fill(0.0));
 
     // create and write to input buffers
@@ -76,9 +66,6 @@ export function simulationSetup (dt, iterations, k, partitions) {
         size: 8, // 2 x 4 (float32)
         usage:GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
     });
-
-    // initialize constants
-    DEVICE.queue.writeBuffer(BUFFER_CONSTANTS, 0, buf_constants);
 
     // A B buffers for ping pong
     BUFFER_VAL_A = DEVICE.createBuffer({
@@ -146,16 +133,21 @@ export function simulationSetup (dt, iterations, k, partitions) {
  * Propagates simulation by interation time steps, takes in vals and vels since
  * can be modified between frames, outputs the new vals and vels
  * 
- * @param {Float[]} val 
- * @param {Float[]} vel 
+ * @param {Float[]} val values at start of frame
+ * @param {Float[]} vel velocities at start of frame
+ * @param {Float} dt delta time on this update
+ * @param {Int} iterations iterations to run this update
+ * @param {Float} k spring constant for this update
  * @returns {{val: Float[], vel: Float[]}}
  */
-export async function simulationUpdate (val, vel) {
+export async function simulationUpdate (val, vel, dt, iterations, k) {
     // initialize buffers for update
+    const buf_constants = new Float32Array([dt, k]);
     let buf_val = new Float32Array(val);
     let buf_vel = new Float32Array(vel);
     DEVICE.queue.writeBuffer(BUFFER_VAL_A, 0, buf_val);
     DEVICE.queue.writeBuffer(BUFFER_VEL_A, 0, buf_vel);
+    DEVICE.queue.writeBuffer(BUFFER_CONSTANTS, 0, buf_constants);
 
     //===== creating command encoder =====//
 
@@ -164,19 +156,19 @@ export async function simulationUpdate (val, vel) {
     PASS.setPipeline(PIPELINE);
 
     // ping pong A B buffers
-    for (let k = 0; k < iterationsPerFrame; k++) {
+    for (let k = 0; k < iterations; k++) {
         if (k % 2 == 0) {
             PASS.setBindGroup(0, BIND_GROUP_AB);
         }
         else {
             PASS.setBindGroup(0, BIND_GROUP_BA);
         }
-        PASS.dispatchWorkgroups(Math.ceil(spatialPartitions / WORKGROUP_SIZE));
+        PASS.dispatchWorkgroups(numWorkgroups);
     }
 
     PASS.end();
 
-    if (iterationsPerFrame % 2 == 0) {
+    if (iterations % 2 == 0) {
         COMMAND_ENCODER.copyBufferToBuffer(BUFFER_VAL_A,0, BUFFER_VAL_OUT,0, BUFFER_VAL_OUT.size);
         COMMAND_ENCODER.copyBufferToBuffer(BUFFER_VEL_A,0, BUFFER_VEL_OUT,0, BUFFER_VEL_OUT.size);
     }

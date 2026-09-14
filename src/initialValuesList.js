@@ -1,4 +1,4 @@
-import { requestNewSetup } from "./main.js";
+import { requestSetNewInitialValues } from "./main.js";
 
 
 export const INITIAL_VALUE_TYPES = {
@@ -126,7 +126,7 @@ addBtn.addEventListener('click', () => {
 });
 
 setBtn.addEventListener('click', () => {
-    requestNewSetup(initialValues);
+    requestSetNewInitialValues(initialValues);
 });
 
 

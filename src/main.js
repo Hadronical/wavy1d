@@ -1,4 +1,6 @@
-import { simulationSetup, simulationUpdate } from "./webgpu.js";
+//import * as math from "../libraries/math.min.js";
+
+import { WORKGROUP_SIZE, simulationSetup, simulationUpdate } from "./webgpu.js";
 import { INITIAL_VALUE_TYPES } from "./initialValuesList.js";
 
 
@@ -11,6 +13,8 @@ const W = 800, W_2 = W / 2;
 const H = 400, H_2 = H / 2;
 
 const DISPLACEMENT_DEFAULT_HEIGHT = H - 80;
+const VELOCITY_DEFAULT_HEIGHT = DISPLACEMENT_DEFAULT_HEIGHT;
+
 const RING_CENTER_X = W_2;
 const RING_CENTER_Y = H_2 - 40;
 const RING_RADIUS = 120;
@@ -22,6 +26,7 @@ const TWO_PI = 2 * PI;
 const HALF_PI = PI / 2;
 
 // simulation parameters
+let isRunning = false;
 let dt = 0.005;
 let iterations = 4;
 let k = 500.0;
@@ -35,6 +40,8 @@ let val = new Array(N).fill(0.0);
 let vel = new Array(N).fill(0.0);
 
 let requiresNewSetup = true;
+let requiresSetNewInitialValues = true;
+
 /** @type {{id: Int, active: boolean, type: string, function: string, intervalMin: Float, intervalMax: Float}[]} */
 let initialValues = [];
 //val  |  30 * Math.exp( -((10 * x) ** 2) ) * Math.sin(15 * x * TWO_PI)  |  -1,1
@@ -49,7 +56,15 @@ cnv.width = W;
 cnv.height = H;
 
 function setup () {
-    // set initial values
+    // setup webgpu for simulation
+    console.log(`Setting up webgpu: ${N} partitions, ${WORKGROUP_SIZE} threads per workgroup...`);
+
+    simulationSetup(N);
+
+    console.log("Setup complete!");
+}
+
+function setInitialValues () {
     console.log("Setting initial values...");
 
     val = new Array(N).fill(0.0);
@@ -80,12 +95,7 @@ function setup () {
         );
     }
 
-    // setup webgpu for simulation
-    console.log(`Setting up webgpu: ${dt} time step, ${iterations} iterations, ${N} partitions...`);
-
-    simulationSetup(dt, iterations, k, N);
-
-    console.log("Setup complete!");
+    console.log("Initial values set!");
 }
 
 //===== draw frame =====
@@ -96,20 +106,32 @@ async function draw () {
         requiresNewSetup = false;
     }
 
-    // simulate
-    const result = await simulationUpdate(val, vel);
+    if (requiresSetNewInitialValues) {
+        setInitialValues();
+        requiresSetNewInitialValues = false;
+    }
 
-    // draw
-    val = result.val;
-    vel = result.vel;
+    if (isRunning) {
+        // simulate
+        await requestUpdate();
+    }
 
     ctx.fillStyle = "white";
     ctx.fillRect(0,0, W,H);
 
     draw_displacement();
+    draw_velocity();
     draw_ring();
 
     requestAnimationFrame(draw);
+}
+
+export async function requestUpdate () {
+    const result = await simulationUpdate(val, vel, dt, iterations, k);
+
+    // draw
+    val = result.val;
+    vel = result.vel;
 }
 
 requestAnimationFrame(draw);
@@ -118,12 +140,36 @@ requestAnimationFrame(draw);
 //===== helper functions =====
 
 /**
+ * Perform new setup after current and before next frame
+ * 
+ * @param {Int} partitions 
+ */
+export function requestNewSetup (partitions) {
+    requiresNewSetup = true;
+    N = partitions;
+}
+
+/**
+ * Set new initial values after current and before next frame
  * 
  * @param {{id: Int, type: INITIAL_VALUE_TYPES, function: string, intervalm: Float, intervalM: Float}[]} newInitialValues 
  */
-export function requestNewSetup (newInitialValues) {
-    requiresNewSetup = true;
+export function requestSetNewInitialValues (newInitialValues) {
+    requiresSetNewInitialValues = true;
     initialValues = newInitialValues;
+}
+
+/**
+ * Set new simulation parameters
+ * 
+ * @param {Boolean} newIsRunning
+ * @param {Float} newDT
+ * @param {Int} newIterations
+ */
+export function setNewParameters (newIsRunning, newDT, newIterations) {
+    isRunning = newIsRunning;
+    dt = newDT;
+    iterations = newIterations;
 }
 
 /**
@@ -165,14 +211,12 @@ function initial_function (medium, domain_m,domain_M, func) {
 }
 
 /**
- * draw values as a disaplacement from default height
+ * draw values as a displacement from default height
  */
 function draw_displacement () {
     ctx.strokeStyle = "black";
 
-    let x = 0;
-    let y = DISPLACEMENT_DEFAULT_HEIGHT;
-
+    // draw boundary
     ctx.strokeWeight = 2;
 
     ctx.beginPath();
@@ -185,13 +229,40 @@ function draw_displacement () {
     ctx.lineTo(W, DISPLACEMENT_DEFAULT_HEIGHT + 30);
     ctx.stroke();
 
+    // draw displacement
     ctx.strokeWeight = 1;
+
+    let x = 0;
+    let y = DISPLACEMENT_DEFAULT_HEIGHT;
 
     ctx.beginPath();
     ctx.moveTo(x, y);
     for (let i = 1; i <= N; i++) {
-        x = dx * i;
+        x += dx;
         y = DISPLACEMENT_DEFAULT_HEIGHT - val[i];
+        ctx.lineTo(x, y);
+        ctx.moveTo(x, y);
+    }
+    ctx.stroke();
+}
+
+/**
+ * draw velocities as a displacement from default height
+ */
+function draw_velocity () {
+    ctx.strokeStyle = "rgba(80,80, 80, 0.4)";
+
+    // draw displacement
+    ctx.strokeWeight = 1;
+
+    let x = 0;
+    let y = VELOCITY_DEFAULT_HEIGHT;
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    for (let i = 1; i <= N; i++) {
+        x += dx;
+        y = VELOCITY_DEFAULT_HEIGHT - vel[i] * 0.5;
         ctx.lineTo(x, y);
         ctx.moveTo(x, y);
     }
@@ -228,4 +299,3 @@ function draw_ring () {
     ctx.lineTo(RING_CENTER_X + RING_RADIUS + 15, RING_CENTER_Y);
     ctx.stroke();
 }
-
