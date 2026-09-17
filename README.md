@@ -12,6 +12,8 @@ Black line represents the displacement at each point as a height. Same with colo
 
 ## Usage
 
+Use the controls to play/pause and step the simulation, or set the $`\Delta t`$ and iterations per physics update (real frame time step per frame is shown on the right).
+
 Use the configurator below the canvas to set initial conditions, and see what happens in the simulation!
 
 ### Initial Values
@@ -43,9 +45,4 @@ const HALF_PI = Math.PI / 2;
 
 ## WIP
 
-- Update all compute shaders so other Dirichlet and Neumann conditions work with ping-pong algorithm.
-
-## Potential features
-
-- Simulation could technically be outfitted for any ODE, even nonlinear, though the actual diff eq is currently hardcoded.
-- Refactor code to use Float64 instead of Float32 for higher precision.
+Simulation could technically be outfitted for any ODE, even nonlinear, working on solution to allow dynamically changing the diff eq used in computation.
