@@ -18,9 +18,9 @@ const SHADER_FILES = {
 const STR_COMPUTESHADER_CODE = await SHADER_FILES.RING.text();
 
 const STR_SOLVER_CODE = /* wgsl */`
-fn accelerate_from_to(v1: f32, v2: f32) -> f32 {
+fn accelerate_from_to(x1: f32, x2: f32) -> f32 {
     // a = -k * x
-    return -CONSTANTS.k * (v1 - v2);
+    return -CONSTANTS.k * (x1 - x2);
 }
 
 fn accelerate_by_velocity(v: f32) -> f32 {
